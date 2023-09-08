@@ -33,3 +33,42 @@ LOBYTE = b'\
 \x01\xC0\x80\x41\x00\xC1\x81\x40\x00\xC1\x81\x40\x01\xC0\x80\x41\
 \x01\xC0\x80\x41\x00\xC1\x81\x40\x00\xC1\x81\x40\x01\xC0\x80\x41\
 \x00\xC1\x81\x40\x01\xC0\x80\x41\x01\xC0\x80\x41\x00\xC1\x81\x40'
+
+
+def crc16(data: b'') -> ():
+
+    """ Вычисляет CRC возвращая hi и lo, если пакет полный вернет нули"""
+
+    crchi = 0xFF  # 255, 11111111, -127
+    crclo = 0xFF
+
+    for byte in data:
+        index = crchi ^ int(byte)  # сдвиг
+        crchi = crclo ^ LOBYTE[index]  # ^ XOR побитовый оператор исключения
+        crclo = HIBYTE[index]
+
+    return crchi, crclo
+
+
+def add_crc16(data: b'') -> b'':
+
+    """Добавляет CRC к пакету данных"""
+
+    hi, lo = crc16(data)
+    hi_lo_hex_str = "{0:x} {1:x}".format(hi, lo)
+    hi_lo_bytes = bytes.fromhex(hi_lo_hex_str)
+    data_list = [data, hi_lo_bytes]
+    full_data_package = b''.join(data_list)
+
+    return full_data_package
+
+
+def checking_packages_for_crc16_compliance(data: b'') -> bool:
+
+    """Проверяент пакет на полноту данных"""
+
+    result = crc16(data)
+    if result == (00, 00):
+        return True
+    else:
+        return False
