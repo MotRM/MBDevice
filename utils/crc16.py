@@ -75,10 +75,10 @@ def mbrtu(data: dict) -> b'':
     rdOffset = data.get('rdOffset', None)
     rdCount = data.get('rdCount', None)
     wrData = data.get('wrData', None)
-
-    if func == 0x03 or func == 0x04:
-        return add_crc(bytes([addr, func, rdOffset, rdCount]))
-    else:
-        return add_crc(bytes([addr, func]) + wrData)
+    match func:
+        case 0x03 | 0x04:
+            return add_crc(bytes([addr, func, rdOffset, rdCount]))
+        case _:
+            return add_crc(bytes([addr, func]) + wrData)
 
 
