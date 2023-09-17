@@ -78,7 +78,9 @@ def mbrtu(data: dict) -> b'':
     match func:
         case 0x03 | 0x04:
             return add_crc(bytes([addr, func, rdOffset, rdCount]))
-        case _:
+        case 0x06 | 0x10:
             return add_crc(bytes([addr, func]) + wrData)
+        case _:
+            print('OwenErrorFunc')
 
 
