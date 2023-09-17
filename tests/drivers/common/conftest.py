@@ -29,6 +29,7 @@ def dict_modbus_adu_req_read():
     }
     return data
 
+
 @pytest.fixture
 def dict_modbus_adu_req_reс():
     data = {
@@ -37,4 +38,3 @@ def dict_modbus_adu_req_reс():
         'wrData': b'\x34\x01\x00\x30'
     }
     return data
-

@@ -1,4 +1,4 @@
-from utils.crc16 import get_crc, add_crc, check_crc, mbrtu
+from drivers.common.utils import get_crc, add_crc, check_crc, mbrtu
 
 
 def test_get_crc(data_modbus_without_crc):
