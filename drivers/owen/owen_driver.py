@@ -2,6 +2,7 @@ from struct import pack, unpack, error
 from typing import Any
 from drivers.common.classes import Driver
 from drivers.common.mixins import ModBusMixin
+from drivers.common.mixins import RequestReadData, RequestWriteData
 
 
 class OwenDriverError(Exception):
@@ -51,41 +52,34 @@ class OwenDriver(Driver, ModBusMixin):
             try:
                 return self._OWEN_TYPE[frmt]['unpack'](value)
             except error:
-                errcode = self._OWEN_TYPE['U8']['unpack'](value)
-                OwenDriverError('Ошибка формата')
+                OwenDriverError(f'Неизвестный формата')
 
-    def make_packet(self, param: dict) -> b'':
-        """ Создвет из словаря с параметрами запроса битовую строку"""
+    def make_packet(self, param: dict, value=None) -> b'':
+        """ Создает из словаря с параметрами запроса битовую строку,
+         если есть записываемое значение упаковывает его в wrData"""
 
-        data = {}  # cловарь для функции mbrtu
-
-        zero_count = 0x00  # нулевое значение, надо переделать на функу
-        number_of_resp = 0x01  # количество устройств, надо переделать на функу
         match param['func']:
             case 0x03 | 0x04:
-                data['addr'] = param['address']
-                data['func'] = param['func']
-                data['rdOffset'] = zero_count, param.get('adress_hex', None)
-                data['rdCount'] = zero_count, number_of_resp
-                return self.make_mbrtu_request(data)
+                req_read_data = RequestReadData(addr=self.COP['address'],
+                                                func=self.COP['func'],
+                                                rdOffset=self.COP['adress_hex'])
+                return self.make_mbrtu_request(req_read_data)
             case 0x06 | 0x10:
-                data['addr'] = param['address']
-                data['func'] = param['func']
-                data['wrData'] = param.get('wrData', None)
-                return self.make_mbrtu_request(data)
+                req_write_data = RequestWriteData(addr=self.COP['address'],
+                                                  func=self.COP['func'],
+                                                  wrData=(self.pack_value(param['type'],
+                                                                          value) if not value is None
+                                                                          else self.COP['wrData']))
+                return self.make_mbrtu_request(req_write_data)
 
-    def parse_response(self, packet: bytes, answer: bytes) -> dict:
-        """ Функция создает словарь из полученных данных для дальнейшей обработки"""
+    def check_response(self, packet: bytes, answer: bytes) -> None:
+        """ Функция проверяет полученный ответ"""
 
         if not packet[:2] == answer[:2]:
             OwenDriverError('Адрес и команда ответа не совпадают с отправленным')
 
         if not self.check_crc16(answer[-2:]):
-            OwenDriverError('неправильная контрольная сумма')
-
-        data = {'addr': answer[0], 'func': answer[1], 'rdOffset': answer[2:4], 'rdCount': answer[4:-2],
-                'wrData': answer[2:-2]}
-        return data
+            OwenDriverError('Неправильная контрольная сумма')
 
     def get_data(self, name_cmd: str) -> Any:
         """ Функция вытаскивает данные из словаря, формирует, получает и расшифровывает запрос"""
@@ -93,15 +87,16 @@ class OwenDriver(Driver, ModBusMixin):
         param = self.COP['Modbus'][name_cmd]  # получаем словарь с нужными параметрами
         packet = self.make_packet(param)  # формируем пакет данных
         self._send_package(packet)  # отправляем пакет данных
-        answer = self._get_package()  # считываем ответ
-        result = self.parse_response(packet, answer)  # расшифровка ответа
-        return self.unpack_value(param['type'], result['rdOffset'])  # возврат расшифрованого результата
+        answer = self._get_package()  # получаем ответ
+        self.check_response(packet, answer)  # проверка ответа
+        return self.unpack_value(param['type'], answer)  # возврат расшифрованого результата
 
-    def set_data(self, name_cmd: str) -> Any:
+    def set_data(self, name_cmd: str, value=None) -> Any:
         """ Создает и отправляет пакет для записи на устройство"""
 
-        param = self.COP['Modbus'][name_cmd]
-        packet = self.make_packet(param)
-        self._send_pakage(packet)
-        answer = self._get_package()
-        return answer
+        param = self.COP['Modbus'][name_cmd]  # получаем словарь с нужными параметрами
+        packet = self.make_packet(param)  # формируем пакет данных
+        self._send_pakage(packet, value)  # отправляем пакет данных
+        answer = self._get_package()  # получаем ответ
+        self.check_response(packet, answer)  # проверка ответа
+        return self.unpack_value(param['type'], answer)  # возврат расшифрованого результата
