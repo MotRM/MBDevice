@@ -61,9 +61,9 @@ class Driver:
 
         match self.connection_type:
             case ConnectionType.ethernet:
-                self.dev.connect(self.dev_settings)  # откуда тащим настройки
+                self.dev.connect(self.dev_settings)
             case ConnectionType.rs485:
-                self.dev.open()  # откуда тащим настройки
+                self.dev.open()
 
     def _disconnect(self) -> None:
         """ Закрытие соединения """
