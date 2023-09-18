@@ -1,7 +1,11 @@
-from socket import socket
+from __future__ import annotations
+
+import socket
+import serial
+
 from typing import Any
 
-from serial import Serial
+from drivers.common.data_classes import ConnectionType
 
 
 class DriverError(Exception):
@@ -9,7 +13,7 @@ class DriverError(Exception):
 
 
 class Driver:
-    _ALLOW_CONNECTION_TYPE = ('ethernet', 'rs485')
+    _ALLOW_CONNECTION_TYPE = (ConnectionType.ethernet, ConnectionType.rs485)
 
     def __init__(self, **kwargs):
         self.dev = None
@@ -20,14 +24,27 @@ class Driver:
         self.DEBUG = kwargs.get('debug', False)
 
         match self.connection_type:
-            case 'ethernet':
-                self.dev = socket.connect
-            case 'rs485':
-                self.dev = Serial.open
+            case ConnectionType.ethernet:
+                self.dev = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+                self.dev.settimeout(kwargs.get('timeout', 1))
+
+                self.dev_settings = (kwargs.get('host'), int(kwargs.get('port')))
+
+            case ConnectionType.rs485:
+                self.dev = serial.Serial()
+                self.dev.port = kwargs.get('port', None)
+                self.dev.baudrate = kwargs.get('baudrate', 115200)
+                self.dev.parity = kwargs.get('parity', serial.PARITY_NONE)
+                self.dev.stopbits = kwargs.get('stopbits', serial.STOPBITS_ONE)
+                self.dev.bytesize = kwargs.get('bytesize', serial.EIGHTBITS)
+                self.dev.timeout = kwargs.get('timeout', 0.1)
+                self.dev.xonxoff = kwargs.get('xonxoff', False)
+                self.dev.rtscts = kwargs.get('rtscts', False)
+
             case _:
                 raise DriverError('Неизвестный тип соединения')
 
-        if self.dev is None or not isinstance(self.dev, (socket, Serial)):
+        if self.dev is None or not isinstance(self.dev, (socket.socket, serial.Serial)):
             raise DriverError('Устройство не сконфигурировано')
 
     def __enter__(self):
@@ -39,31 +56,43 @@ class Driver:
 
     def _connect(self) -> None:
         """ Открытие соединения"""
+
+        self.dev: socket.socket | serial.Serial
+
         match self.connection_type:
-            case 'ethernet':
-                self.dev(self.dev_setting)  # откуда тащим настройки
-            case 'rs485':
-                self.dev(self.dev_setting)  # откуда тащим настройки
+            case ConnectionType.ethernet:
+                self.dev.connect(self.dev_settings)  # откуда тащим настройки
+            case ConnectionType.rs485:
+                self.dev.open()  # откуда тащим настройки
 
     def _disconnect(self) -> None:
         """ Закрытие соединения """
+
         if self.dev is not None:
             self.dev.close()
             self.dev = None
 
     def _send_package(self, cmd: b'') -> None:
+        """ Отправка пакета """
+
+        self.dev: socket.socket | serial.Serial
+
         match self.connection_type:
-            case 'ethernet':
+            case ConnectionType.ethernet:
                 self.dev.send(cmd)
-            case 'rs485':
+            case ConnectionType.rs485:
                 self.dev.write(cmd)
 
     def _get_package(self, length=50) -> bytes:
+        """ Получение пакета """
+
+        self.dev: socket.socket | serial.Serial
+
         match self.connection_type:
-            case 'ethernet':
-                self.dev.recv(length)
-            case 'rs485':
-                self.dev.read(length)
+            case ConnectionType.ethernet:
+                return self.dev.recv(length)
+            case ConnectionType.rs485:
+                return self.dev.read(length)
 
     def get_data(self, name_param: str) -> Any:  # добавлено имя команды
         """ Метод чтения данных с устройства """
