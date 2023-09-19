@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from drivers.common.data_classes import RequestReadData, RequestWriteData
+from drivers.common.utils import u16_to_bytes
 
 
 class ModBusException(Exception):
@@ -79,8 +80,17 @@ class ModBusMixin:
 
         match data, data.func:
             case RequestReadData(), 0x03 | 0x04:
-                return add_crc(bytes([data.addr, data.func, data.rdOffset, data.rdCount]))
+                return add_crc(
+                    u16_to_bytes(data.addr) +
+                    data.func.to_bytes(1, 'little') +
+                    u16_to_bytes(data.rdOffset) +
+                    u16_to_bytes(data.rdCount)
+                )
             case RequestWriteData(), 0x06 | 0x10:
-                return add_crc(bytes([data.addr, data.func]) + data.wrData)
+                return add_crc(
+                    u16_to_bytes(data.addr) +
+                    data.func.to_bytes(1, 'little') +
+                    data.wrData
+                )
             case _:
                 raise ModBusException('Неизвестная функция')

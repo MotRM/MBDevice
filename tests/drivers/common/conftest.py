@@ -22,13 +22,11 @@ def data_modbus_with_error():
 
 @pytest.fixture
 def dict_modbus_adu_req_read():
-    data = RequestReadData(addr=0x00, func=0x03, rdOffset=0x1D, rdCount=0x02)
+    data = RequestReadData(addr=0x00, func=0x03, rdOffset=0x32, rdCount=0x01)
     return data
 
 
 @pytest.fixture
-def dict_modbus_adu_req_reс():
-    data = RequestWriteData(addr=0x00,func=0x06, wrData=b'\x34\x01\x00\x30')
+def dict_modbus_adu_req_rec():
+    data = RequestWriteData(addr=0x00, func=0x06, wrData=b'\x34\x01\x00\x30')
     return data
-
-
