@@ -81,16 +81,23 @@ class ModBusMixin:
         match data, data.func:
             case RequestReadData(), 0x03 | 0x04:
                 return add_crc(
-                    u16_to_bytes(data.addr) +
-                    data.func.to_bytes(1, 'little') +
-                    u16_to_bytes(data.rdOffset) +
-                    u16_to_bytes(data.rdCount)
+                    bytes((data.addr, data.func)) +  # Адрес устройства и функция
+                    u16_to_bytes(data.rdOffset) +  # Начальный адрес
+                    u16_to_bytes(data.rdCount)  # Количество регистров для чтения
                 )
-            case RequestWriteData(), 0x06 | 0x10:
+            case RequestWriteData(), 0x06:
                 return add_crc(
-                    u16_to_bytes(data.addr) +
-                    data.func.to_bytes(1, 'little') +
-                    data.wrData
+                    bytes((data.addr, data.func)) +  # Адрес устройства и функция
+                    u16_to_bytes(data.wrOffset) +  # Адрес регистра
+                    data.wrData  # Значения для записи
+                )
+            case RequestWriteData(), 0x10:
+                return add_crc(
+                    bytes((data.addr, data.func)) +  # Адрес устройства и функция
+                    u16_to_bytes(data.wrOffset) +  # Адрес начала записи
+                    u16_to_bytes(data.wrCount) +  # Число регистров
+                    (2 * data.wrCount).to_bytes(1, 'little') +  # Число байт * количество регистров для записи
+                    data.wrData  # Значения для записи
                 )
             case _:
                 raise ModBusException('Неизвестная функция')

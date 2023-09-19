@@ -13,24 +13,25 @@ class DriverError(Exception):
 
 
 class Driver:
-    _ALLOW_CONNECTION_TYPE = (ConnectionType.ethernet, ConnectionType.rs485)
+    _ALLOW_CONNECTION_TYPE = ConnectionType()
 
     def __init__(self, **kwargs):
         self.dev = None
         self.connection_type = kwargs.get('connection_type', None)
+        self.dev_addr = kwargs.get('dev_addr', 0x00)  # адрес устройства (если не указан, то широковещательный)
 
         self.COP = {}  # команды протокола
         self.ERR_MSG = {}  # сообщения об ошибках
         self.DEBUG = kwargs.get('debug', False)
 
         match self.connection_type:
-            case ConnectionType.ethernet:
+            case self._ALLOW_CONNECTION_TYPE.ethernet:
                 self.dev = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
                 self.dev.settimeout(kwargs.get('timeout', 1))
 
                 self.dev_settings = (kwargs.get('host'), int(kwargs.get('port')))
 
-            case ConnectionType.rs485:
+            case self._ALLOW_CONNECTION_TYPE.rs485:
                 self.dev = serial.Serial()
                 self.dev.port = kwargs.get('port', None)
                 self.dev.baudrate = kwargs.get('baudrate', 115200)
@@ -60,9 +61,9 @@ class Driver:
         self.dev: socket.socket | serial.Serial
 
         match self.connection_type:
-            case ConnectionType.ethernet:
+            case self._ALLOW_CONNECTION_TYPE.ethernet:
                 self.dev.connect(self.dev_settings)
-            case ConnectionType.rs485:
+            case self._ALLOW_CONNECTION_TYPE.rs485:
                 self.dev.open()
 
     def _disconnect(self) -> None:
@@ -78,9 +79,9 @@ class Driver:
         self.dev: socket.socket | serial.Serial
 
         match self.connection_type:
-            case ConnectionType.ethernet:
+            case self._ALLOW_CONNECTION_TYPE.ethernet:
                 self.dev.send(cmd)
-            case ConnectionType.rs485:
+            case self._ALLOW_CONNECTION_TYPE.rs485:
                 self.dev.write(cmd)
 
     def _get_package(self, length=50) -> bytes:
@@ -89,9 +90,9 @@ class Driver:
         self.dev: socket.socket | serial.Serial
 
         match self.connection_type:
-            case ConnectionType.ethernet:
+            case self._ALLOW_CONNECTION_TYPE.ethernet:
                 return self.dev.recv(length)
-            case ConnectionType.rs485:
+            case self._ALLOW_CONNECTION_TYPE.rs485:
                 return self.dev.read(length)
 
     def get_data(self, name_param: str) -> Any:  # добавлено имя команды

@@ -10,11 +10,14 @@ class RequestReadData(NamedTuple):
     addr: int
     func: int
     rdOffset: int
-    rdCount: int = 0x01
+    rdCount: int
 
 
 class RequestWriteData(NamedTuple):
     addr: int
     func: int
+    wrOffset: int
     wrData: b''
+    wrCount: int
+
 

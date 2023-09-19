@@ -28,5 +28,5 @@ def dict_modbus_adu_req_read():
 
 @pytest.fixture
 def dict_modbus_adu_req_rec():
-    data = RequestWriteData(addr=0x00, func=0x06, wrData=b'\x34\x01\x00\x30')
+    data = RequestWriteData(addr=0x00, func=0x10, wrOffset=0x32, wrCount=0x01, wrData=b'\x00\x0F')
     return data
