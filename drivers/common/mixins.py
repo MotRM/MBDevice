@@ -79,16 +79,44 @@ class ModBusMixin:
         add_crc = getattr(self, f'add_{polinom}')
 
         match data, data.func:
+            case RequestReadData(), 0x01:
+                return add_crc(
+                    bytes((data.addr, data.func)) +  # Адрес устройства и функция
+                    u16_to_bytes(data.rdOffset) +  # Начальный адрес
+                    u16_to_bytes(data.rdCount)  # Количество выходов для чтения (1-2000)
+                )
+            case RequestReadData(), 0x02:
+                return add_crc(
+                    bytes((data.addr, data.func)) +  # Адрес устройства и функция
+                    u16_to_bytes(data.rdOffset) +  # Начальный адрес
+                    u16_to_bytes(data.rdCount)  # Количество входов для чтения (1-2000)
+                )
             case RequestReadData(), 0x03 | 0x04:
                 return add_crc(
                     bytes((data.addr, data.func)) +  # Адрес устройства и функция
                     u16_to_bytes(data.rdOffset) +  # Начальный адрес
                     u16_to_bytes(data.rdCount)  # Количество регистров для чтения
                 )
+            case RequestWriteData(), 0x05:
+                return add_crc(
+                    bytes((data.addr, data.func)) +  # Адрес устройства и функция
+                    u16_to_bytes(data.wrOffset) +  # Адрес выхода
+                    data.wrData  # Значения для записи
+                )
             case RequestWriteData(), 0x06:
                 return add_crc(
                     bytes((data.addr, data.func)) +  # Адрес устройства и функция
                     u16_to_bytes(data.wrOffset) +  # Адрес регистра
+                    data.wrData  # Значения для записи
+                )
+            case RequestWriteData(), 0x0F:
+                return add_crc(
+                    bytes((data.addr, data.func)) +  # Адрес устройства и функция
+                    u16_to_bytes(data.wrOffset) +  # Адрес начала записи
+                    u16_to_bytes(data.wrCount) +  # Число выходов для записи
+                    (data.wrCount if not data.wrCount % 8 > 0 else data.wrCount
+                                                                   + 1).to_bytes(1,
+                                                                                 'little') +
                     data.wrData  # Значения для записи
                 )
             case RequestWriteData(), 0x10:
@@ -98,6 +126,10 @@ class ModBusMixin:
                     u16_to_bytes(data.wrCount) +  # Число регистров
                     (2 * data.wrCount).to_bytes(1, 'little') +  # Число байт * количество регистров для записи
                     data.wrData  # Значения для записи
+                )
+            case RequestReadData(), 0x11:
+                return add_crc(
+                    bytes((data.addr, data.func))  # Адрес устройства и функция
                 )
             case _:
                 raise ModBusException('Неизвестная функция')
