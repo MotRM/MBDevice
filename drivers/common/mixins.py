@@ -1,6 +1,6 @@
 from __future__ import annotations
-
-from drivers.common.data_classes import RequestReadData, RequestWriteData
+from math import log2, floor
+from drivers.common.data_classes import RequestReadData, RequestWriteData, RequestReadFileData, RequestWriteFileData
 from drivers.common.utils import u16_to_bytes
 
 
@@ -70,7 +70,8 @@ class ModBusMixin:
 
         return self.get_crc16(data) == (0, 0)
 
-    def make_mbrtu_request(self, data: RequestReadData | RequestWriteData, polinom: str = 'crc16') -> b'':
+    def make_mbrtu_request(self, data: RequestReadData | RequestWriteData | RequestReadFileData |
+                           RequestWriteFileData, polinom: str = 'crc16') -> b'':
         """ Метод получает на входе объект и собирает в запрос"""
 
         if not hasattr(self, f'add_{polinom}'):
@@ -121,6 +122,29 @@ class ModBusMixin:
             case RequestReadData(), 0x11:
                 return add_crc(
                     bytes((data.addr, data.func))  # Адрес устройства и функция
+                )
+            case RequestReadFileData(), 0x14:
+                number = data.num_file + data.num_entry
+                num_bytes = floor(-log2(number) / 8)  # число байт
+                return add_crc(
+                    bytes((data.addr, data.func)) +  # Адрес устройства и функция
+                    bytes(num_bytes) +  # число байт
+                    data.req_type +  # тип запроса
+                    u16_to_bytes(data.num_file) +  # номер файла
+                    u16_to_bytes(data.num_entry) +  # номер записи
+                    u16_to_bytes(data.rdCount)  # длина записи
+                )
+            case RequestWriteFileData(), 0x15:
+                number = data.num_file + data.num_entry
+                num_bytes = floor(-log2(number) / 8)  # число байт
+                return add_crc(
+                    bytes((data.addr, data.func)) +  # Адрес устройства и функция
+                    bytes(num_bytes) +  # число байт
+                    data.req_type +  # тип запроса
+                    u16_to_bytes(data.num_file) +  # номер файла
+                    u16_to_bytes(data.num_entry) +  # номер записи
+                    u16_to_bytes(data.wrCount) +  # длина записи
+                    (data.wrCount * data.wrCount).to_bytes(1, 'little')  # данные
                 )
             case _:
                 raise ModBusException('Неизвестная функция')

@@ -11,8 +11,6 @@ class RequestReadData(NamedTuple):
     func: int
     rdOffset: int
     rdCount: int
-    num_file: None
-    num_entry: None
 
 
 class RequestWriteData(NamedTuple):
@@ -21,7 +19,22 @@ class RequestWriteData(NamedTuple):
     wrOffset: int
     wrData: b''
     wrCount: int
-    num_file: None
-    num_entry: None
 
 
+class RequestReadFileData(NamedTuple):
+    addr: int
+    func: int
+    num_file: int
+    num_entry: int
+    rdCount: bytes = 0x01
+    req_type: bytes = 0x06
+
+
+class RequestWriteFileData(NamedTuple):
+    addr: int
+    func: int
+    num_file: int
+    num_entry: int
+    data: int
+    wrCount: bytes = 0x01
+    req_type: bytes = 0x06
