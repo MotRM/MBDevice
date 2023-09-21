@@ -79,25 +79,15 @@ class ModBusMixin:
         add_crc = getattr(self, f'add_{polinom}')
 
         match data, data.func:
-            case RequestReadData(), 0x01:
-                return add_crc(
-                    bytes((data.addr, data.func)) +  # Адрес устройства и функция
-                    u16_to_bytes(data.rdOffset) +  # Начальный адрес
-                    u16_to_bytes(data.rdCount)  # Количество выходов для чтения (1-2000)
-                )
-            case RequestReadData(), 0x02:
-                return add_crc(
-                    bytes((data.addr, data.func)) +  # Адрес устройства и функция
-                    u16_to_bytes(data.rdOffset) +  # Начальный адрес
-                    u16_to_bytes(data.rdCount)  # Количество входов для чтения (1-2000)
-                )
-            case RequestReadData(), 0x03 | 0x04:
+            case RequestReadData(), 0x01 | 0x02 | 0x03 | 0x04:
                 return add_crc(
                     bytes((data.addr, data.func)) +  # Адрес устройства и функция
                     u16_to_bytes(data.rdOffset) +  # Начальный адрес
                     u16_to_bytes(data.rdCount)  # Количество регистров для чтения
                 )
             case RequestWriteData(), 0x05:
+                if data.wrData != 0xFF00 | 0x00FF:
+                    return ModBusException('Значение не соотвествует формату запроса')
                 return add_crc(
                     bytes((data.addr, data.func)) +  # Адрес устройства и функция
                     u16_to_bytes(data.wrOffset) +  # Адрес выхода
@@ -110,13 +100,14 @@ class ModBusMixin:
                     data.wrData  # Значения для записи
                 )
             case RequestWriteData(), 0x0F:
+                N = int(data.rdCount / 8)  # число байт
+                if data.rdCount % 8 > 0:
+                    N += 1
                 return add_crc(
                     bytes((data.addr, data.func)) +  # Адрес устройства и функция
                     u16_to_bytes(data.wrOffset) +  # Адрес начала записи
                     u16_to_bytes(data.wrCount) +  # Число выходов для записи
-                    (data.wrCount if not data.wrCount % 8 > 0 else data.wrCount
-                                                                   + 1).to_bytes(1,
-                                                                                 'little') +
+                    N.to_bytes(1, 'little') +
                     data.wrData  # Значения для записи
                 )
             case RequestWriteData(), 0x10:
