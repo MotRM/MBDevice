@@ -11,13 +11,24 @@ class OwenDriverError(Exception):
 
 class OwenDriver(Driver, ModBusMixin):
     _OWEN_TYPE = {
-        'F32': {'pack': lambda value: pack('>f', value)[:4], 'unpack': lambda value: unpack('>f', value[:4])[0]},
-        'F24': {'pack': lambda value: pack('>f', value)[:3], 'unpack': lambda value: unpack('>f', value[:3] + b'\x00')[0]},
-        'U16': {'pack': lambda value: pack('>H', value)[:2], 'unpack': lambda value: unpack('>H', value[:2])[0]},
-        'I16': {'pack': lambda value: pack('>h', value)[:2], 'unpack': lambda value: unpack('>h', value[:2])[0]},
-        'U8': {'pack': lambda value: pack('>B', value)[:1], 'unpack': lambda value: unpack('>B', value[:1])[0]},
-        'I8': {'pack': lambda value: pack('>b', value)[:1], 'unpack': lambda value: unpack('>b', value[:1])[0]},
-        'U24': {'pack': lambda value: pack('>BH', value)[:3], 'unpack': lambda value: unpack('>BH', value[:3])},
+        'F32': {'pack': lambda value: pack('>f', value)[:4],
+                'unpack': lambda value: unpack('>f', value[:4])[0]},
+        'F24': {'pack': lambda value: pack('>f', value)[:3],
+                'unpack': lambda value: unpack('>f', value[:3] + b'\x00')[0]},
+        'U32': {'pack': lambda value: value.to_bytes(4, byteorder='big'),
+                'unpack': lambda value: int.from_bytes(value, byteorder='big')},
+        'U16': {'pack': lambda value: pack('>H', value)[:2],
+                'unpack': lambda value: unpack('>H', value[:2])[0]},
+        'I16': {'pack': lambda value: pack('>h', value)[:2],
+                'unpack': lambda value: unpack('>h', value[:2])[0]},
+        'U8': {'pack': lambda value: pack('>B', value)[:1],
+               'unpack': lambda value: unpack('>B', value[:1])[0]},
+        'U4': {'pack': lambda value: pack('>B', value)[:1],
+               'unpack': lambda value: unpack('>B', value[:1])[0]},
+        'I8': {'pack': lambda value: pack('>b', value)[:1],
+               'unpack': lambda value: unpack('>b', value[:1])[0]},
+        'U24': {'pack': lambda value: pack('>BH', value)[:3],
+                'unpack': lambda value: unpack('>BH', value[:3])},
         'STR': {'pack': lambda value: value[::-1], 'unpack': lambda value: value[::-1]}}
 
     def pack_value(self, frmt, value):

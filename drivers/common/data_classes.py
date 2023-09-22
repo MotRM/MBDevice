@@ -24,17 +24,19 @@ class RequestWriteData(NamedTuple):
 class RequestReadFileData(NamedTuple):
     addr: int
     func: int
+    num_bytes: bytes
     num_file: int
     num_entry: int
-    rdCount: bytes = 0x01
+    rdCount: bytes
     req_type: bytes = 0x06
 
 
 class RequestWriteFileData(NamedTuple):
     addr: int
     func: int
+    num_bytes: bytes
     num_file: int
     num_entry: int
     data: int
-    wrCount: bytes = 0x01
+    wrCount: bytes
     req_type: bytes = 0x06
