@@ -1,4 +1,3 @@
-from drivers.common.utils import u16_to_bytes
 from drivers.owen.owen_driver import OwenDriver
 
 
