@@ -27,7 +27,7 @@ class Owen_AIM110_224_8A(OwenDriver):
                 'wrFunc': None},
             'MEASUREMENT_IN1': {  # Измерение входа 1 в представлении с плавающей точкой
                 'measure': None, 'min': None, 'max': None, 'type': 'F32', 'rdFunc': 0x03,
-                'rdOffset': {'first': 0x0004, 'second': 0x0005}, 'wrFunc': None},
+                'rdOffset': 0x0004, 'wrFunc': None, 'rdCount': 0x02},
             'POS_POINT_IN2': {  # Положение десятичной точки в целом значении для входа 2 (значение DP)
                 'measure': None, 'min': None, 'max': None, 'type': 'I16', 'rdFunc': 0x03, 'rdOffset': 0x0006,
                 'wrFunc': None},
@@ -42,7 +42,7 @@ class Owen_AIM110_224_8A(OwenDriver):
                 'wrFunc': None},
             'MEASUREMENT_IN2': {  # Измерение входа 2 в представлении с плавающей точкой
                 'measure': None, 'min': None, 'max': None, 'type': 'F32', 'rdFunc': 0x03,
-                'rdOffset': {'first': 0x000A, 'second': 0x000B}, 'wrFunc': None},
+                'rdOffset': 0x000A, 'wrFunc': None, 'rdCount': 0x02},
             'POS_POINT_IN3': {  # Положение десятичной точки в целом значении для входа 3 (значение DP)
                 'measure': None, 'min': None, 'max': None, 'type': 'I16', 'rdFunc': 0x03, 'rdOffset': 0x000C,
                 'wrFunc': None},
@@ -57,7 +57,7 @@ class Owen_AIM110_224_8A(OwenDriver):
                 'wrFunc': None},
             'MEASUREMENT_IN3': {  # Измерение входа 3 в представлении с плавающей точкой
                 'measure': None, 'min': None, 'max': None, 'type': 'F32', 'rdFunc': 0x03,
-                'rdOffset': {'first': 0x0010, 'second': 0x0011}, 'wrFunc': None},
+                'rdOffset': 0x0010, 'wrFunc': None, 'rdCount': 0x02},
             'POS_POINT_IN4': {  # Положение десятичной точки в целом значении для входа 4 (значение DP)
                 'measure': None, 'min': None, 'max': None, 'type': 'I16', 'rdFunc': 0x03, 'rdOffset': 0x0012,
                 'wrFunc': None},
@@ -72,7 +72,7 @@ class Owen_AIM110_224_8A(OwenDriver):
                 'wrFunc': None},
             'MEASUREMENT_IN4': {  # Измерение входа 4 в представлении с плавающей точкой
                 'measure': None, 'min': None, 'max': None, 'type': 'F32', 'rdFunc': 0x03,
-                'rdOffset': {'first': 0x0016, 'second': 0x0017}, 'wrFunc': None},
+                'rdOffset': 0x0016, 'wrFunc': None, 'rdCount': 0x02},
             'POS_POINT_IN5': {  # Положение десятичной точки в целом значении для входа 5 (значение DP)
                 'measure': None, 'min': None, 'max': None, 'type': 'I16', 'rdFunc': 0x03, 'rdOffset': 0x0018,
                 'wrFunc': None},
@@ -87,7 +87,7 @@ class Owen_AIM110_224_8A(OwenDriver):
                 'wrFunc': None},
             'MEASUREMENT_IN5': {  # Измерение входа 5 в представлении с плавающей точкой
                 'measure': None, 'min': None, 'max': None, 'type': 'F32', 'rdFunc': 0x03,
-                'rdOffset': {'first': 0x001C, 'second': 0x001D}, 'wrFunc': None},
+                'rdOffset': 0x001C, 'wrFunc': None, 'rdCount': 0x02},
             'POS_POINT_IN6': {  # Положение десятичной точки в целом значении для входа 6 (значение DP)
                 'measure': None, 'min': None, 'max': None, 'type': 'I16', 'rdFunc': 0x03, 'rdOffset': 0x001E,
                 'wrFunc': None},
@@ -102,7 +102,7 @@ class Owen_AIM110_224_8A(OwenDriver):
                 'wrFunc': None},
             'MEASUREMENT_IN6': {  # Измерение входа 6 в представлении с плавающей точкой
                 'measure': None, 'min': None, 'max': None, 'type': 'F32', 'rdFunc': 0x03,
-                'rdOffset': {'first': 0x0022, 'second': 0x0023}, 'wrFunc': None},
+                'rdOffset': 0x0022, 'wrFunc': None, 'rdCount': 0x02},
             'POS_POINT_IN7': {  # Положение десятичной точки в целом значении для входа 7 (значение DP)
                 'measure': None, 'min': None, 'max': None, 'type': 'I16', 'rdFunc': 0x03, 'rdOffset': 0x0024,
                 'wrFunc': None},
@@ -117,7 +117,7 @@ class Owen_AIM110_224_8A(OwenDriver):
                 'wrFunc': None},
             'MEASUREMENT_IN7': {  # Измерение входа 7 в представлении с плавающей точкой
                 'measure': None, 'min': None, 'max': None, 'type': 'F32', 'rdFunc': 0x03,
-                'rdOffset': {'first': 0x0028, 'second': 0x0029}, 'wrFunc': None},
+                'rdOffset': 0x0028, 'wrFunc': None, 'rdCount': 0x02},
             'POS_POINT_IN8': {  # Положение десятичной точки в целом значении для входа 8 (значение DP)
                 'measure': None, 'min': None, 'max': None, 'type': 'I16', 'rdFunc': 0x03, 'rdOffset': 0x002A,
                 'wrFunc': None},
@@ -132,9 +132,6 @@ class Owen_AIM110_224_8A(OwenDriver):
                 'wrFunc': None},
             'MEASUREMENT_IN8': {  # Измерение входа 8 в представлении с плавающей точкой
                 'measure': None, 'min': None, 'max': None, 'type': 'F32', 'rdFunc': 0x03,
-                'rdOffset': {'first': 0x002E, 'second': 0x002F}, 'wrFunc': None}
+                'rdOffset': 0x002E, 'wrFunc': None, 'rdCount': 0x02}
         }
 
-    def set_all_out(self, contact_status: tuple[bool, bool, bool, bool]) -> None:
-        data = int(''.join(map(str, (map(int, contact_status)))), 2)
-        self.set_data('ALL_OUT', data=u16_to_bytes(data))
