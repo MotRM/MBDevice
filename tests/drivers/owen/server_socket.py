@@ -1,4 +1,3 @@
-import pytest
 import asyncio
 
 
@@ -6,6 +5,7 @@ async def handle_connection(reader, writer):
     addr = writer.get_extra_info("peername")
     print("Соединение с", addr)
     while True:
+        # Receive
         try:
             data = await reader.read(1024)
         except ConnectionError:
@@ -19,7 +19,6 @@ async def handle_connection(reader, writer):
         try:
             writer.write(data)
             await writer.drain()
-
         except ConnectionError:
             print(f"Клиент внезапно закрылся, не удается отправить")
             break
@@ -33,9 +32,7 @@ async def server(host, port):
     async with server_soc:
         await server_soc.serve_forever()
 
+HOST = "localhost"
+PORT = 50003
 
-@pytest.fixture
-def run_server():
-    HOST = "localhost"
-    PORT = 50003
-    asyncio.run(server(HOST, PORT))
+asyncio.run(server(HOST, PORT))
