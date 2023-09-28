@@ -5,7 +5,6 @@ async def handle_connection(reader, writer):
     addr = writer.get_extra_info("peername")
     print("Соединение с", addr)
     while True:
-        # Receive
         try:
             data = await reader.read(1024)
         except ConnectionError:
@@ -14,7 +13,6 @@ async def handle_connection(reader, writer):
         print(f"Получено {data} от: {addr}")
         if not data:
             break
-        data = data
         print(f"Отправлено: {data} в: {addr}")
         try:
             writer.write(data)
@@ -32,7 +30,4 @@ async def server(host, port):
     async with server_soc:
         await server_soc.serve_forever()
 
-HOST = "localhost"
-PORT = 50003
-
-asyncio.run(server(HOST, PORT))
+asyncio.run(server("localhost", 50003))
