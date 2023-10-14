@@ -12,7 +12,7 @@ class Lidar_TFmini_i(LidarDriver):
 
         self.COP = {
             'DIST': {  # Считывание расстояния
-                'measure': None, 'min': None, 'max': None, 'type': 'U16', 'rdFunc': 0x03, 'rdOffset': 0x00,
+                'measure': 'см', 'min': None, 'max': None, 'type': 'U16', 'rdFunc': 0x03, 'rdOffset': 0x00,
                 'wrFunc': None, 'rdCount': 0x01},
             'DIST_STR': {  # Считываемое расстояние и сила сигнала
                 'measure': None, 'min': None, 'max': None, 'type': 'U16', 'rdFunc': 0x03, 'rdOffset': 0x00,
@@ -21,7 +21,7 @@ class Lidar_TFmini_i(LidarDriver):
                 'measure': None, 'min': None, 'max': None, 'type': 'U16', 'rdFunc': 0x03, 'rdOffset': 0x06,
                 'wrFunc': None, 'rdCount': 0x02},
             'BAUDRATE': {  # Скорость обмена
-                'measure': None, 'min': None, 'max': None, 'type': 'U16', 'rdFunc': None, 'wrOffset': 0x83,
+                'measure': 'кб/с', 'min': None, 'max': None, 'type': 'U16', 'rdFunc': None, 'wrOffset': 0x83,
                 'wrFunc': 0x06, 'wrCount': None},
             'ID': {  # Версия программного обеспечения
                 'measure': None, 'min': None, 'max': None, 'type': 'U16', 'rdFunc': None, 'wrOffset': 0x85,

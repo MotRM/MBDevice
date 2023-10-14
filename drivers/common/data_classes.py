@@ -17,8 +17,8 @@ class RequestWriteData(NamedTuple):
     addr: int
     func: int
     wrOffset: int
-    wrData: b''
     wrCount: int
+    wrData: b''
 
 
 class RequestReadFileData(NamedTuple):

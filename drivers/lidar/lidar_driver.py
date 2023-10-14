@@ -18,7 +18,7 @@ class LidarDriver(Driver, ModBusMixin):
         """ Упаковка данных """
 
         if value is not None:
-            return list(bytearray(self._LIDAR_TYPE[frmt]['pack'](value)))
+            return bytearray(self._LIDAR_TYPE[frmt]['pack'](value))
 
     def unpack_value(self, frmt, value):
         """ Распаковка данных """
@@ -63,7 +63,7 @@ class LidarDriver(Driver, ModBusMixin):
         self.check_response(packet, answer)  # проверка ответа
         return self.unpack_value(cop_data['type'], answer)  # возврат расшифрованого результата
 
-    def set_data(self, name_cmd: str, data=b'') -> None:
+    def set_data(self, name_cmd: str, data=int) -> bytes:
         """ Функция формирует пакет, отправляет его для записи на устройство """
 
         if name_cmd is None:
@@ -82,11 +82,12 @@ class LidarDriver(Driver, ModBusMixin):
 
         req_write_data = RequestWriteData(addr=self.dev_addr,
                                           func=cop_data['wrFunc'],
-                                          wrOffset=cop_data.get('wrOffset', cop_data['rdOffset']),
-                                          wrCount=cop_data.get('wrCount', 0x01),
-                                          wrData=data)
+                                          wrOffset=cop_data.get('wrOffset'),
+                                          wrCount=cop_data.get('wrCount', None),
+                                          wrData=self.pack_value(cop_data['type'], data))
 
         packet = self.make_mbrtu_request(req_write_data)
         self._send_package(packet)  # отправляем пакет данных
         answer = self._get_package()  # получаем ответ
         self.check_response(packet, answer)  # проверка ответа
+        return answer
