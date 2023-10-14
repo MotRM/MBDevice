@@ -5,7 +5,6 @@ class Owen_AIM110_224_8A(OwenDriver):
     """
         Класс для работы с модулем аналогового ввода Овен МВ110-224.8А
 
-        COP -
     """
 
     def __init__(self, **kwargs):

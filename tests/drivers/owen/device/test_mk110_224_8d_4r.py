@@ -1,7 +1,7 @@
-from drivers.owen.mk110_224_8d_4r import Owen_MIE110_220_3M
+from drivers.owen.device.mk110_224_8d_4r import Owen_MIE110_220_3M
 
 
-def test_mk110_224_8d_4r(run_server):
+def test_mk110_224_8d_4r():
     owen_settings = {
         'connection_type': 'ethernet',
         'host': 'localhost',
